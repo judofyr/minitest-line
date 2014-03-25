@@ -2,8 +2,8 @@
 
 Gem::Specification.new do |s|
   s.name     = "minitest-line"
-  s.version  = "0.5.0"
-  s.date     = "2013-05-26"
+  s.version  = "0.6.0"
+  s.date     = "2014-03-25"
   s.summary  = "Focused tests for Minitest"
   s.email    = "judofyr@gmail.com"
   s.homepage = "https://github.com/judofyr/minitest-line"
