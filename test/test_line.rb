@@ -17,6 +17,10 @@ class LineExample < Minitest::Test
   def test_failure
     flunk
   end
+
+  def test_skip
+    skip
+  end
 end
 
 Minitest::Runnable.runnables.delete(LineExample)
@@ -51,6 +55,7 @@ class TestLine < Minitest::Test
     output = run_class LineExample
     assert_match /Focus on failing tests:/, output
     assert_match /#{__FILE__} -l 17/, output
+    refute_match /-l 21/, output
   end
 
   def test_before

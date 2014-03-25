@@ -44,7 +44,7 @@ module Minitest
     end
 
     def record(result)
-      if !result.passed?
+      if !result.skipped? && !result.passed?
         @failures << result
       end
     end
