@@ -13,6 +13,10 @@ class LineExample < Minitest::Test
   def test_world
     p :world
   end
+
+  def test_failure
+    flunk
+  end
 end
 
 Minitest::Runnable.runnables.delete(LineExample)
@@ -35,12 +39,18 @@ class TestLine < Minitest::Test
       refute_match /:world/, output
     end
 
-    (13..45).each do |line|
+    (13..16).each do |line|
       output = run_class LineExample, ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:world/, output
       refute_match /:hello/, output
     end
+  end
+
+  def test_show_focus
+    output = run_class LineExample
+    assert_match /Focus on failing tests:/, output
+    assert_match /#{__FILE__} -l 17/, output
   end
 
   def test_before
