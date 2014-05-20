@@ -57,7 +57,7 @@ module Minitest
         meth = res.method(res.name)
         file, line = meth.source_location
         if file
-          io.puts "$ ruby #{file} -l #{line}"
+          io.puts "ruby #{file} -l #{line}"
         end
       end
     end
