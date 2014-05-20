@@ -54,8 +54,18 @@ class TestLine < Minitest::Test
   def test_show_focus
     output = run_class LineExample
     assert_match /Focus on failing tests:/, output
-    assert_match /#{__FILE__} -l 17/, output
+    assert_match /#{File.basename(__FILE__)} -l 17/, output
     refute_match /-l 21/, output
+  end
+
+  if __FILE__.start_with?("/")
+    def test_show_focus_relative_to_pwd
+      dir = File.dirname(__FILE__)
+      Dir.chdir(dir) do
+        output = run_class LineExample
+        assert_match "ruby #{File.basename(__FILE__)} -l 17", output
+      end
+    end
   end
 
   def test_before

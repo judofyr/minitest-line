@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Minitest
   def self.plugin_line_options(opts, options)
     opts.on '-l', '--line N', Integer, "Run test at line number" do |lineno|
@@ -53,10 +55,13 @@ module Minitest
       return unless @failures.any?
       io.puts
       io.puts "Focus on failing tests:"
+      pwd = Pathname.new(Dir.pwd)
       @failures.each do |res|
         meth = res.method(res.name)
         file, line = meth.source_location
         if file
+          file = Pathname.new(file)
+          file = file.relative_path_from(pwd) if file.absolute?
           io.puts "ruby #{file} -l #{line}"
         end
       end

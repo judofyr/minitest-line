@@ -1,5 +1,6 @@
 ## HEAD
 
+* Show relative paths [judofyr]
 * Improve copy-pasting [grosser, #2]
 
 ## 0.6.1 - 2014-03-25
