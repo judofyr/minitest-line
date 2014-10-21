@@ -25,7 +25,7 @@ end
 
 Minitest::Runnable.runnables.delete(LineExample)
 
-class TestLine < Minitest::Test
+describe "Minitest::Line" do
   def run_class(klass, args = [])
     Minitest::Runnable.stub :runnables, [klass] do
       $stdout = io = StringIO.new
@@ -35,7 +35,7 @@ class TestLine < Minitest::Test
     end
   end
 
-  def test_line
+  it "finds tests by line number" do
     (9..12).each do |line|
       output = run_class LineExample, ['--line', line.to_s]
       assert_match /1 runs/, output
@@ -51,7 +51,7 @@ class TestLine < Minitest::Test
     end
   end
 
-  def test_show_focus
+  it "prints failing tests after test run" do
     output = run_class LineExample
     assert_match /Focus on failing tests:/, output
     assert_match /#{File.basename(__FILE__)} -l 17/, output
@@ -59,7 +59,7 @@ class TestLine < Minitest::Test
   end
 
   if __FILE__.start_with?("/")
-    def test_show_focus_relative_to_pwd
+    it "shows focus relative to pwd" do
       dir = File.dirname(__FILE__)
       Dir.chdir(dir) do
         output = run_class LineExample
@@ -68,7 +68,7 @@ class TestLine < Minitest::Test
     end
   end
 
-  def test_before
+  it "fails when given a line before any test" do
     assert_raises(RuntimeError) do
       run_class LineExample, ['--line', '8']
     end
