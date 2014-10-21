@@ -28,15 +28,35 @@ DescribeExample = describe "LineExample" do
     p :hello
   end
 
+  describe "here" do
+    describe "comes" do
+      it "the nesting" do
+        p :nested
+      end
+
+      it "is amazing" do
+        p :amazing
+      end
+    end
+  end
+
   it "world" do
     p :world
   end
 end
 
 Minitest::Runnable.runnables.delete(LineExample)
-Minitest::Runnable.runnables.delete(DescribeExample)
+Minitest::Runnable.runnables.delete_if { |c| c == DescribeExample || c < DescribeExample }
 
 describe "Minitest::Line" do
+  def pending
+    yield
+  rescue Minitest::Assertion
+    skip
+  else
+    raise "It works!"
+  end
+
   def run_class(klass, args = [])
     Minitest::Runnable.stub :runnables, [klass] do
       $stdout = io = StringIO.new
@@ -96,6 +116,17 @@ describe "Minitest::Line" do
     assert_match /1 runs/, output
     assert_match /:hello/, output
     refute_match /:world/, output
+  end
+
+  it "runs tests declared with describe" do
+    pending do
+      output = run_class DescribeExample, ['--line', '32']
+      assert_match /2 runs/, output
+      assert_match /:nested/, output
+      assert_match /:amazing/, output
+      refute_match /:hello/, output
+      refute_match /:world/, output
+    end
   end
 end
 
