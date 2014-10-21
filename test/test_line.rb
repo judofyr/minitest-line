@@ -23,7 +23,7 @@ class LineExample < Minitest::Test
   end
 end
 
-DescribeExample = describe "LineExample" do
+DescribeExample = describe "DescribeExample" do
   it "hello" do
     p :hello
   end
@@ -46,7 +46,8 @@ DescribeExample = describe "LineExample" do
 end
 
 Minitest::Runnable.runnables.delete(LineExample)
-Minitest::Runnable.runnables.delete_if { |c| c == DescribeExample || c < DescribeExample }
+describe_examples = Minitest::Runnable.runnables.select { |c| c == DescribeExample || c < DescribeExample }
+Minitest::Runnable.runnables.delete_if { |c| describe_examples.include?(c) }
 
 describe "Minitest::Line" do
   def pending
@@ -57,8 +58,8 @@ describe "Minitest::Line" do
     raise "It works!"
   end
 
-  def run_class(klass, args = [])
-    Minitest::Runnable.stub :runnables, [klass] do
+  def run_class(klasses, args = [])
+    Minitest::Runnable.stub :runnables, klasses do
       $stdout = io = StringIO.new
       Minitest.run(args)
       $stdout = STDOUT
@@ -68,14 +69,14 @@ describe "Minitest::Line" do
 
   it "finds tests by line number" do
     (9..12).each do |line|
-      output = run_class LineExample, ['--line', line.to_s]
+      output = run_class [LineExample], ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:hello/, output
       refute_match /:world/, output
     end
 
     (13..16).each do |line|
-      output = run_class LineExample, ['--line', line.to_s]
+      output = run_class [LineExample], ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:world/, output
       refute_match /:hello/, output
@@ -83,7 +84,7 @@ describe "Minitest::Line" do
   end
 
   it "prints failing tests after test run" do
-    output = run_class LineExample
+    output = run_class [LineExample]
     assert_match /Focus on failing tests:/, output
     assert_match /#{File.basename(__FILE__)} -l 17/, output
     refute_match /-l 21/, output
@@ -93,7 +94,7 @@ describe "Minitest::Line" do
     it "shows focus relative to pwd" do
       dir = File.dirname(__FILE__)
       Dir.chdir(dir) do
-        output = run_class LineExample
+        output = run_class [LineExample]
         assert_match "ruby #{File.basename(__FILE__)} -l 17", output
       end
     end
@@ -101,26 +102,33 @@ describe "Minitest::Line" do
 
   it "fails when given a line before any test" do
     assert_raises(RuntimeError) do
-      run_class LineExample, ['--line', '8']
+      run_class [LineExample], ['--line', '8']
     end
   end
 
   it "runs last test when given a line after last test" do
-    output = run_class LineExample, ['--line', '80']
+    output = run_class [LineExample], ['--line', '80']
     assert_match /1 runs/, output
     assert_match /1 skip/, output
   end
 
   it "runs tests declared with it" do
-    output = run_class DescribeExample, ['--line', '27']
+    output = run_class describe_examples, ['--line', '27']
     assert_match /1 runs/, output
     assert_match /:hello/, output
     refute_match /:world/, output
   end
 
+  it "runs tests declared with it inside nested describes" do
+    output = run_class describe_examples, ['--line', '37']
+    assert_match /1 runs/, output
+    assert_match /:amazing/, output
+    refute_match /:nesting/, output
+  end
+
   it "runs tests declared with describe" do
     pending do
-      output = run_class DescribeExample, ['--line', '32']
+      output = run_class describe_examples, ['--line', '32']
       assert_match /2 runs/, output
       assert_match /:nested/, output
       assert_match /:amazing/, output

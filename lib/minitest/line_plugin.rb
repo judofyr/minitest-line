@@ -24,7 +24,6 @@ module Minitest
     tests = {}
 
     methods.each do |name, meth|
-      puts "METH #{name} -- #{meth} -- #{meth.source_location}"
       next unless loc = meth.source_location
       current_filename ||= loc[0]
       next unless current_filename == loc[0]
