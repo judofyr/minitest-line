@@ -73,5 +73,11 @@ describe "Minitest::Line" do
       run_class LineExample, ['--line', '8']
     end
   end
+
+  it "runs last test when given a line after last test" do
+    output = run_class LineExample, ['--line', '80']
+    assert_match /1 runs/, output
+    assert_match /1 skip/, output
+  end
 end
 
