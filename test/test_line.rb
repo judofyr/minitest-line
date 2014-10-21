@@ -23,7 +23,18 @@ class LineExample < Minitest::Test
   end
 end
 
+DescribeExample = describe "LineExample" do
+  it "hello" do
+    p :hello
+  end
+
+  it "world" do
+    p :world
+  end
+end
+
 Minitest::Runnable.runnables.delete(LineExample)
+Minitest::Runnable.runnables.delete(DescribeExample)
 
 describe "Minitest::Line" do
   def run_class(klass, args = [])
@@ -78,6 +89,13 @@ describe "Minitest::Line" do
     output = run_class LineExample, ['--line', '80']
     assert_match /1 runs/, output
     assert_match /1 skip/, output
+  end
+
+  it "runs tests declared with it" do
+    output = run_class DescribeExample, ['--line', '27']
+    assert_match /1 runs/, output
+    assert_match /:hello/, output
+    refute_match /:world/, output
   end
 end
 
