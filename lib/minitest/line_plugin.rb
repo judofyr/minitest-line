@@ -15,19 +15,26 @@ module Minitest
     end
 
     methods = Runnable.runnables.flat_map do |runnable|
+      rname = Class.instance_method(:name).bind(runnable).call
       runnable.runnable_methods.map do |name|
-        [name, runnable.instance_method(name)]
+        [rname, name, runnable.instance_method(name)]
       end
     end.uniq
 
     current_filename = nil
     tests = {}
 
-    methods.each do |name, meth|
+    methods.each do |rname, name, meth|
       next unless loc = meth.source_location
       current_filename ||= loc[0]
       next unless current_filename == loc[0]
-      tests[loc[1]] = name
+
+      if rname
+        test_name = "#{rname}##{name}"
+      else
+        test_name = name
+      end
+      tests[loc[1]] = test_name
     end
 
     _, main_test = tests.sort_by { |k, v| -k }.detect do |line, name|

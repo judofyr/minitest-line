@@ -23,6 +23,12 @@ class LineExample < Minitest::Test
   end
 end
 
+class Line2Example < Minitest::Test
+  def test_hello
+    p :hello
+  end
+end
+
 DescribeExample = describe "DescribeExample" do
   it "hello" do
     p :hello
@@ -46,6 +52,7 @@ DescribeExample = describe "DescribeExample" do
 end
 
 Minitest::Runnable.runnables.delete(LineExample)
+Minitest::Runnable.runnables.delete(Line2Example)
 describe_examples = Minitest::Runnable.runnables.select { |c| c == DescribeExample || c < DescribeExample }
 Minitest::Runnable.runnables.delete_if { |c| describe_examples.include?(c) }
 
@@ -68,8 +75,8 @@ describe "Minitest::Line" do
   end
 
   it "finds tests by line number" do
-    (9..12).each do |line|
-      output = run_class [LineExample], ['--line', line.to_s]
+    [*9..12, *27..29].each do |line|
+      output = run_class [LineExample, Line2Example], ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:hello/, output
       refute_match /:world/, output
@@ -113,14 +120,14 @@ describe "Minitest::Line" do
   end
 
   it "runs tests declared with it" do
-    output = run_class describe_examples, ['--line', '27']
+    output = run_class describe_examples, ['--line', '33']
     assert_match /1 runs/, output
     assert_match /:hello/, output
     refute_match /:world/, output
   end
 
   it "runs tests declared with it inside nested describes" do
-    output = run_class describe_examples, ['--line', '37']
+    output = run_class describe_examples, ['--line', '43']
     assert_match /1 runs/, output
     assert_match /:amazing/, output
     refute_match /:nesting/, output
@@ -128,7 +135,7 @@ describe "Minitest::Line" do
 
   it "runs tests declared with describe" do
     pending do
-      output = run_class describe_examples, ['--line', '32']
+      output = run_class describe_examples, ['--line', '38']
       assert_match /2 runs/, output
       assert_match /:nested/, output
       assert_match /:amazing/, output
