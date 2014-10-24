@@ -1,12 +1,11 @@
+require 'bundler/setup'
 require 'rake/testtask'
 
 task :default => :test
 
 desc 'Runs tests'
-Rake::TestTask.new
-
 task :test do
-  # Run it with relative path as well
-  ruby 'test/test_line.rb'
+  test = 'test/test_line.rb'
+  ruby File.expand_path(test)
+  ruby test
 end
-
