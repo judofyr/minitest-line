@@ -41,7 +41,7 @@ module Minitest
       exp_line >= line
     end
 
-    raise "Could not find test method after line #{exp_line}" unless main_test
+    raise "Could not find test method before line #{exp_line}" unless main_test
 
     options[:filter] = main_test
   end
