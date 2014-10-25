@@ -2,9 +2,14 @@
 
 A Minitest 5 plugin for running focused tests.
 
+```Bash
+gem install minitest-line
+ruby test/my_file -l 5
 ```
-$ gem install minitest-line
-$ ruby test/my_file -l 5
+
+If you want to be able to run describe block by line number add
+```Ruby
+require 'minitest/line/describe_track'
 ```
 
 ## Acknowledgments
