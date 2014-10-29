@@ -1,6 +1,51 @@
 require 'pathname'
 
 module Minitest
+  module Line
+    class << self
+      def tests_with_lines
+        target_file = target_file()
+        methods_with_lines(target_file).concat describes_with_lines(target_file)
+      end
+
+      private
+
+      def target_file
+        runnables.each do |r|
+          r.runnable_methods.each do |m|
+            file, line = r.instance_method(m).source_location
+            return file if file
+          end
+        end
+        nil
+      end
+
+      def methods_with_lines(target_file)
+        runnables.flat_map do |runnable|
+          rname = Class.instance_method(:name).bind(runnable).call
+          runnable.runnable_methods.map do |name|
+            file, line = runnable.instance_method(name).source_location
+            next unless file == target_file
+            test_name = (rname ? "#{rname}##{name}" : name)
+            [test_name, line]
+          end
+        end.uniq.compact
+      end
+
+      def describes_with_lines(target_file)
+        runnables.map do |runnable|
+          next unless caller = runnable.instance_variable_get(:@minitest_line_caller)
+          next unless line = caller.detect { |line| line.include?(target_file) }
+          ["/#{Regexp.escape(runnable.name)}/", line[/:(\d+):in/, 1].to_i]
+        end.compact
+      end
+
+      def runnables
+        Minitest::Runnable.runnables
+      end
+    end
+  end
+
   def self.plugin_line_options(opts, options)
     opts.on '-l', '--line N', Integer, "Run test at line number" do |lineno|
       options[:line] = lineno
@@ -8,42 +53,18 @@ module Minitest
   end
 
   def self.plugin_line_init(options)
-    exp_line = options[:line]
-    if !exp_line
+    unless exp_line = options[:line]
       reporter.reporters << LineReporter.new
       return
     end
 
-    methods = Runnable.runnables.flat_map do |runnable|
-      rname = Class.instance_method(:name).bind(runnable).call
-      runnable.runnable_methods.map do |name|
-        [rname, name, runnable.instance_method(name)]
-      end
-    end.uniq
+    tests = Minitest::Line.tests_with_lines
 
-    current_filename = nil
-    tests = {}
+    filter, _ = tests.sort_by { |n, l| -l }.detect { |n, l| exp_line >= l }
 
-    methods.each do |rname, name, meth|
-      next unless loc = meth.source_location
-      current_filename ||= loc[0]
-      next unless current_filename == loc[0]
+    raise "Could not find test method before line #{exp_line}" unless filter
 
-      if rname
-        test_name = "#{rname}##{name}"
-      else
-        test_name = name
-      end
-      tests[loc[1]] = test_name
-    end
-
-    _, main_test = tests.sort_by { |k, v| -k }.detect do |line, name|
-      exp_line >= line
-    end
-
-    raise "Could not find test method before line #{exp_line}" unless main_test
-
-    options[:filter] = main_test
+    options[:filter] = filter
   end
 
   class LineReporter < Reporter
@@ -80,4 +101,3 @@ module Minitest
   def self.plugin_line_inject_reporter
   end
 end
-

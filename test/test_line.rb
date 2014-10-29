@@ -4,6 +4,7 @@ require 'stringio'
 require 'minitest'
 require 'minitest/autorun'
 require 'minitest/mock'
+require 'minitest/line/describe_track'
 
 class LineExample < Minitest::Test
   def test_hello
@@ -36,12 +37,24 @@ DescribeExample = describe "DescribeExample" do
 
   describe "here" do
     describe "comes" do
+      let(:unused) {  }
+
       it "the nesting" do
         p :nested
       end
 
       it "is amazing" do
         p :amazing
+      end
+
+      def self.indirect(*args, &block)
+        describe(*args, &block)
+      end
+
+      indirect "it is" do
+        it "works" do
+          p :indirect
+        end
       end
     end
   end
@@ -75,14 +88,14 @@ describe "Minitest::Line" do
   end
 
   it "finds tests by line number" do
-    [*9..12, *27..29].each do |line|
+    [*10..13, *28..30].each do |line|
       output = run_class [LineExample, Line2Example], ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:hello/, output
       refute_match /:world/, output
     end
 
-    (13..16).each do |line|
+    (14..17).each do |line|
       output = run_class [LineExample], ['--line', line.to_s]
       assert_match /1 runs/, output
       assert_match /:world/, output
@@ -93,8 +106,8 @@ describe "Minitest::Line" do
   it "prints failing tests after test run" do
     output = run_class [LineExample]
     assert_match /Focus on failing tests:/, output
-    assert_match /#{File.basename(__FILE__)} -l 17/, output
-    refute_match /-l 21/, output
+    assert_match /#{File.basename(__FILE__)} -l 18/, output
+    refute_match /-l 22/, output
   end
 
   if __FILE__.start_with?("/")
@@ -102,7 +115,7 @@ describe "Minitest::Line" do
       dir = File.dirname(__FILE__)
       Dir.chdir(dir) do
         output = run_class [LineExample]
-        assert_match "ruby #{File.basename(__FILE__)} -l 17", output
+        assert_match "ruby #{File.basename(__FILE__)} -l 18", output
       end
     end
   end
@@ -114,34 +127,43 @@ describe "Minitest::Line" do
   end
 
   it "runs last test when given a line after last test" do
-    output = run_class [LineExample], ['--line', '80']
+    output = run_class [LineExample], ['--line', '81']
     assert_match /1 runs/, output
     assert_match /1 skip/, output
   end
 
   it "runs tests declared with it" do
-    output = run_class describe_examples, ['--line', '33']
+    output = run_class describe_examples, ['--line', '34']
     assert_match /1 runs/, output
     assert_match /:hello/, output
     refute_match /:world/, output
   end
 
   it "runs tests declared with it inside nested describes" do
-    output = run_class describe_examples, ['--line', '43']
+    output = run_class describe_examples, ['--line', '46']
     assert_match /1 runs/, output
     assert_match /:amazing/, output
     refute_match /:nesting/, output
   end
 
   it "runs tests declared with describe" do
-    pending do
-      output = run_class describe_examples, ['--line', '38']
-      assert_match /2 runs/, output
-      assert_match /:nested/, output
-      assert_match /:amazing/, output
-      refute_match /:hello/, output
-      refute_match /:world/, output
-    end
+    output = run_class describe_examples, ['--line', '38']
+    assert_match /3 runs/, output
+    assert_match /:nested/, output
+    assert_match /:amazing/, output
+    refute_match /:hello/, output
+    refute_match /:world/, output
+  end
+
+  it "runs tests declared with describe when missing the line" do
+    output = run_class describe_examples, ['--line', '40']
+    assert_match /3 runs/, output
+  end
+
+  it "runs tests declared with describe when using helper methods" do
+    output = run_class describe_examples, ['--line', '54']
+    assert_match /1 runs/, output
+    assert_match /indirect/, output
   end
 end
 
