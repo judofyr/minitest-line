@@ -177,5 +177,19 @@ describe "Minitest::Line" do
     result.must_include "TEST-A"
     result.wont_include "TEST-B"
   end
+
+  describe "when first test is a foreign test" do
+    it "can run tests by line with absolute path" do
+      result = sh("ruby #{Bundler.root}/test/cases/test_with_foreign_method.rb -l 7")
+      result.must_include "WORKS"
+      result.wont_include "FAILS"
+    end
+
+    it "can run tests by line with relative path" do
+      result = sh("ruby test/cases/test_with_foreign_method.rb -l 7")
+      result.must_include "WORKS"
+      result.wont_include "FAILS"
+    end
+  end
 end
 
