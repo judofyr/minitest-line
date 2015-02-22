@@ -87,6 +87,12 @@ describe "Minitest::Line" do
     end
   end
 
+  def sh(command, options={})
+    result = `#{command} #{"2>&1" unless options[:keep_output]}`
+    raise "#{options[:fail] ? "SUCCESS" : "FAIL"} #{command}\n#{result}" if $?.success? == !!options[:fail]
+    result
+  end
+
   it "finds tests by line number" do
     [*10..13, *28..30].each do |line|
       output = run_class [LineExample, Line2Example], ['--line', line.to_s]
@@ -164,6 +170,12 @@ describe "Minitest::Line" do
     output = run_class describe_examples, ['--line', '54']
     assert_match /1 runs/, output
     assert_match /indirect/, output
+  end
+
+  it "can run when multiple nested tests have the same method name" do
+    result = sh("ruby #{Bundler.root}/test/cases/test_multiple_nested.rb -l 4")
+    result.must_include "TEST-A"
+    result.wont_include "TEST-B"
   end
 end
 
