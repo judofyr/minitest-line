@@ -1,5 +1,10 @@
 ## HEAD
 
+## 0.6.3 - 2015-07-13
+
+* Handles describe-blocks better [grosser]
+* Use colors on TTY [grosser]
+
 ## 0.6.2 - 2014-05-20
 
 * Show relative paths [judofyr]
