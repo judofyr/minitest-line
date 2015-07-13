@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
+gemspec
+
 if v = ENV['MINITEST']
   gem 'minitest', v
-else
-  gemspec
 end
 
 group :test do
