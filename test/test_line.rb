@@ -69,6 +69,17 @@ Minitest::Runnable.runnables.delete(Line2Example)
 describe_examples = Minitest::Runnable.runnables.select { |c| c == DescribeExample || c < DescribeExample }
 Minitest::Runnable.runnables.delete_if { |c| describe_examples.include?(c) }
 
+if Minitest.respond_to?(:parallel_executor=)
+  dummy = Class.new {
+    def start
+    end
+
+    def shutdown
+    end
+  }
+  Minitest.parallel_executor = dummy.new
+end
+
 describe "Minitest::Line" do
   def pending
     yield
