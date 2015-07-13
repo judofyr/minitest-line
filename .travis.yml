@@ -10,11 +10,6 @@ env:
   - MINITEST=~>5.7.0
   - MINITEST=~>5.6.0
   - MINITEST=~>5.5.0
-  - MINITEST=~>5.4.0
-  - MINITEST=~>5.3.0
-  - MINITEST=~>5.2.0
-  - MINITEST=~>5.1.0
-  - MINITEST=~>5.0.0
 matrix:
   allow_failures:
     - rvm: rbx-19mode
