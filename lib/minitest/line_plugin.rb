@@ -5,6 +5,9 @@ module Minitest
     class << self
       def tests_with_lines
         target_file = $0
+        if target_file =~ /(?:^|\s|\/)rake\s+test\s+(\S+)/
+          target_file = $1
+        end
         methods_with_lines(target_file).concat describes_with_lines(target_file)
       end
 
@@ -15,7 +18,7 @@ module Minitest
           rname = runnable.name
           runnable.runnable_methods.map do |name|
             file, line = runnable.instance_method(name).source_location
-            next unless file == target_file
+            next unless File.absolute_path(file) == File.absolute_path(target_file)
             test_name = (rname ? "#{rname}##{name}" : name)
             [test_name, line]
           end
