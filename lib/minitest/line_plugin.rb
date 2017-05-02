@@ -3,10 +3,14 @@ require 'pathname'
 module Minitest
   module Line
     class << self
-      def tests_with_lines
-        target_file = $0
-        if target_file =~ /(?:^|\s|\/)rake\s+test\s+(\S+)/
-          target_file = $1
+      def tests_with_linesfile(file = nil)
+        if file
+          target_file = file
+        else
+          target_file = $0
+          if target_file =~ /(?:^|\s|\/)rake\s+test\s+(\S+)/
+            target_file = $1
+          end
         end
         methods_with_lines(target_file).concat describes_with_lines(target_file)
       end
@@ -51,7 +55,8 @@ module Minitest
       return
     end
 
-    tests = Minitest::Line.tests_with_lines
+    tests = Minitest::Line.tests_with_lines(options[:file])
+
 
     filter, _ = tests.sort_by { |n, l| -l }.detect { |n, l| exp_line >= l }
 
