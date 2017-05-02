@@ -3,7 +3,7 @@ require 'pathname'
 module Minitest
   module Line
     class << self
-      def tests_with_linesfile(file = nil)
+      def tests_with_lines(file = nil)
         if file
           target_file = file
         else
