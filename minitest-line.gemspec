@@ -1,4 +1,4 @@
-Gem::Specification.new "minitest-line", "0.6.3" do |s|
+Gem::Specification.new "minitest-line", "0.6.4" do |s|
   s.description = s.summary  = "Focused tests for Minitest"
   s.email    = "judofyr@gmail.com"
   s.homepage = "https://github.com/judofyr/minitest-line"
