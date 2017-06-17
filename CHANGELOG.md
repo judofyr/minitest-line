@@ -1,5 +1,7 @@
 ## HEAD
 
+* Avoid warnings [grosser]
+
 ## 0.6.3 - 2015-07-13
 
 * Handles describe-blocks better [grosser]
