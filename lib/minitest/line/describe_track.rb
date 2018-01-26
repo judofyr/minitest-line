@@ -3,7 +3,7 @@ module Minitest
     module DescribeTrack
       def describe(*args, &block)
         klass = super
-        klass.instance_variable_set(:@minitest_line_caller, caller[0..5])
+        klass.instance_variable_set(:@minitest_line_caller, caller(0..5))
         klass
       end
     end
