@@ -75,8 +75,9 @@ module Minitest
       io.puts "Focus on failing tests:"
       pwd = Pathname.new(Dir.pwd)
       @failures.each do |res|
-        meth = res.method(res.name)
-        file, line = meth.source_location
+        result = (res.respond_to?(:source_location) ? res : res.method(res.name))
+        file, line = result.source_location
+
         if file
           file = Pathname.new(file)
           file = file.relative_path_from(pwd) if file.absolute?
